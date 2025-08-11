@@ -44,3 +44,6 @@ args = "uv add flask-login flask-mail flask-wtf wtforms pillow"
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[agent]
+integrations = ["python_sendgrid==1.0.0"]

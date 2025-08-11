@@ -101,10 +101,10 @@
                 <div class="card-body">
                     {% if current_user.is_authenticated %}
                     <!-- Comment Form -->
-                    <form method="POST" action="{{ url_for('comment_project', id=project.id) }}" class="mb-4">
+                    <form id="comment-form" method="POST" action="{{ url_for('comment_project', id=project.id) }}" class="mb-4">
                         {{ comment_form.hidden_tag() }}
                         <div class="mb-3">
-                            {{ comment_form.content(class="form-control", rows="3", placeholder="Share your thoughts about this project...") }}
+                            {{ comment_form.content(class="form-control", rows="3", placeholder="Share your thoughts about this project...", maxlength="500") }}
                         </div>
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-paper-plane me-2"></i>Post Comment
@@ -120,10 +120,10 @@
                     {% endif %}
 
                     <!-- Comments List -->
-                    {% if comments %}
-                    <div class="comments-list">
+                    <div id="comments-container">
+                        {% if comments %}
                         {% for comment in comments %}
-                        <div class="comment mb-4 pb-3 border-bottom">
+                        <div class="comment mb-4 pb-3 border-bottom" data-aos="fade-up" data-aos-delay="{{ loop.index * 100 }}">
                             <div class="d-flex">
                                 <div class="me-3">
                                     {% if comment.author.profile_image %}
@@ -147,9 +147,11 @@
                             </div>
                         </div>
                         {% endfor %}
+                        {% endif %}
                     </div>
-                    {% else %}
-                    <div class="text-center py-4">
+                    
+                    {% if not comments %}
+                    <div class="text-center py-4" id="no-comments-message">
                         <i class="fas fa-comment fa-2x text-muted mb-3"></i>
                         <p class="text-muted">No comments yet. Be the first to share your thoughts!</p>
                     </div>
@@ -170,13 +172,13 @@
                         <span>
                             <i class="fas fa-heart text-danger me-2"></i>Likes
                         </span>
-                        <span class="badge bg-secondary">{{ project.like_count }}</span>
+                        <span class="badge bg-secondary like-count">{{ project.like_count }}</span>
                     </div>
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <span>
                             <i class="fas fa-comment text-primary me-2"></i>Comments
                         </span>
-                        <span class="badge bg-secondary">{{ project.comment_count }}</span>
+                        <span class="badge bg-secondary comment-count">{{ project.comment_count }}</span>
                     </div>
                     <div class="d-flex justify-content-between align-items-center">
                         <span>
@@ -187,12 +189,16 @@
                     
                     {% if current_user.is_authenticated %}
                     <hr>
-                    <button id="likeBtn" class="btn btn-outline-danger w-100" 
-                            data-project-id="{{ project.id }}" 
-                            data-liked="{{ user_liked|lower }}">
-                        <i class="fas fa-heart me-2"></i>
-                        <span id="likeBtnText">{{ 'Unlike' if user_liked else 'Like' }}</span>
-                    </button>
+                    <div class="d-grid gap-2">
+                        <button class="like-btn btn {% if user_liked %}btn-danger liked{% else %}btn-outline-danger{% endif %} w-100" 
+                                data-project-id="{{ project.id }}">
+                            <i class="fas fa-heart{% if user_liked %} text-white{% endif %} me-2"></i>
+                            <span class="like-text">{{ 'Unlike' if user_liked else 'Like' }} Project</span>
+                        </button>
+                        <button class="share-btn btn btn-outline-primary w-100">
+                            <i class="fas fa-share me-2"></i>Share Project
+                        </button>
+                    </div>
                     {% endif %}
                 </div>
             </div>

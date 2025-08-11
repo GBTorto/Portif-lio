@@ -63,8 +63,9 @@ class ProjectForm(FlaskForm):
     
     def __init__(self, *args, **kwargs):
         super(ProjectForm, self).__init__(*args, **kwargs)
-        self.category_id.choices = [(0, 'No Category')] + [
-            (c.id, c.name) for c in Category.query.all()
+        from models import Category
+        self.category_id.choices = [('0', 'No Category')] + [
+            (str(c.id), c.name) for c in Category.query.all()
         ]
 
 class AchievementForm(FlaskForm):
@@ -84,8 +85,9 @@ class AchievementForm(FlaskForm):
     
     def __init__(self, *args, **kwargs):
         super(AchievementForm, self).__init__(*args, **kwargs)
-        self.category_id.choices = [(0, 'No Category')] + [
-            (c.id, c.name) for c in Category.query.all()
+        from models import Category
+        self.category_id.choices = [('0', 'No Category')] + [
+            (str(c.id), c.name) for c in Category.query.all()
         ]
 
 class ExperienceForm(FlaskForm):
@@ -103,8 +105,9 @@ class ExperienceForm(FlaskForm):
     
     def __init__(self, *args, **kwargs):
         super(ExperienceForm, self).__init__(*args, **kwargs)
-        self.category_id.choices = [(0, 'No Category')] + [
-            (c.id, c.name) for c in Category.query.all()
+        from models import Category
+        self.category_id.choices = [('0', 'No Category')] + [
+            (str(c.id), c.name) for c in Category.query.all()
         ]
 
 class CategoryForm(FlaskForm):

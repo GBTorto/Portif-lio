@@ -103,7 +103,7 @@ def project_detail(id):
                          comment_form=comment_form,
                          user_liked=user_liked)
 
-@app.route('/like_project/<int:id>', methods=['POST'])
+@app.route('/project/<int:id>/like', methods=['POST'])
 @login_required
 def like_project(id):
     project = Project.query.get_or_404(id)
@@ -115,42 +115,85 @@ def like_project(id):
         # Unlike
         db.session.delete(existing_like)
         liked = False
+        message = 'Project unliked'
     else:
         # Like
         like = Like(user_id=current_user.id, project_id=id)
         db.session.add(like)
         liked = True
+        message = 'Project liked!'
     
     db.session.commit()
     
     return jsonify({
+        'success': True,
         'liked': liked,
-        'like_count': project.like_count
+        'like_count': project.like_count,
+        'message': message
     })
 
-@app.route('/comment_project/<int:id>', methods=['POST'])
+@app.route('/project/<int:id>/comment', methods=['POST'])
 @login_required
 def comment_project(id):
     project = Project.query.get_or_404(id)
-    form = CommentForm()
     
-    if form.validate_on_submit():
-        comment = Comment(
-            content=form.content.data,
-            user_id=current_user.id,
-            project_id=id
-        )
-        db.session.add(comment)
-        db.session.commit()
-        
-        # Send notification to owner
-        send_notification_email(project, comment, current_user)
-        
-        flash('Your comment has been posted!', 'success')
+    # Handle both form submissions and AJAX requests
+    if request.content_type == 'application/json' or request.is_json:
+        data = request.get_json()
+        content = data.get('content', '').strip()
     else:
-        flash('Error posting comment. Please try again.', 'error')
+        form = CommentForm()
+        if not form.validate_on_submit():
+            if request.headers.get('Content-Type') == 'application/json':
+                return jsonify({'success': False, 'message': 'Invalid form data'})
+            flash('Error posting comment. Please try again.', 'error')
+            return redirect(url_for('project_detail', id=id))
+        content = form.content.data.strip()
     
-    return redirect(url_for('project_detail', id=id))
+    if not content:
+        if request.headers.get('Content-Type') == 'application/json':
+            return jsonify({'success': False, 'message': 'Comment cannot be empty'})
+        flash('Comment cannot be empty.', 'error')
+        return redirect(url_for('project_detail', id=id))
+    
+    comment = Comment(
+        content=content,
+        user_id=current_user.id,
+        project_id=id
+    )
+    db.session.add(comment)
+    db.session.commit()
+    
+    if request.headers.get('Content-Type') == 'application/json':
+        # Return JSON response for AJAX requests
+        comment_html = render_template_string('''
+            <div class="comment mb-4 pb-3 border-bottom" data-aos="fade-in">
+                <div class="d-flex">
+                    <div class="me-3">
+                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" 
+                             style="width: 40px; height: 40px;">
+                            <i class="fas fa-user text-white"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <h6 class="mb-0">{{ comment.author.username }}</h6>
+                            <small class="text-muted">Just now</small>
+                        </div>
+                        <p class="mb-0">{{ comment.content }}</p>
+                    </div>
+                </div>
+            </div>
+        ''', comment=comment)
+        
+        return jsonify({
+            'success': True,
+            'message': 'Comment posted successfully!',
+            'comment_html': comment_html
+        })
+    else:
+        flash('Your comment has been posted!', 'success')
+        return redirect(url_for('project_detail', id=id))
 
 @app.route('/share_project/<int:id>')
 def share_project(id):
