@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Experiences - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="display-6 fw-bold">
+                <i class="fas fa-briefcase me-3"></i>Manage Experiences
+            </h1>
+            <p class="text-muted">Manage your work experience and education history</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <a href="{{ url_for('admin_new_experience') }}" class="btn btn-info btn-lg">
+                <i class="fas fa-plus me-2"></i>New Experience
+            </a>
+        </div>
+    </div>
+
+    <!-- Timeline View -->
+    {% if experiences %}
+    <div class="row">
+        <div class="col-12">
+            <div class="timeline">
+                {% for experience in experiences %}
+                <div class="timeline-item mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="timeline-date text-info fw-bold">
+                                        {{ experience.start_date.strftime('%b %Y') }} - 
+                                        {% if experience.is_current %}
+                                            <span class="badge bg-success">Current</span>
+                                        {% else %}
+                                            {{ experience.end_date.strftime('%b %Y') if experience.end_date else 'Present' }}
+                                        {% endif %}
+                                    </div>
+                                    {% if experience.location %}
+                                    <small class="text-muted">
+                                        <i class="fas fa-map-marker-alt me-1"></i>{{ experience.location }}
+                                    </small>
+                                    {% endif %}
+                                    <div class="mt-2">
+                                        {% if experience.is_published %}
+                                        <span class="badge bg-success">Published</span>
+                                        {% else %}
+                                        <span class="badge bg-warning text-dark">Draft</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-7">
+                                    <h5 class="card-title">{{ experience.title }}</h5>
+                                    <h6 class="card-subtitle mb-2 text-info">{{ experience.company }}</h6>
+                                    {% if experience.category %}
+                                    <span class="badge bg-primary mb-2">{{ experience.category.name }}</span>
+                                    {% endif %}
+                                    <p class="card-text">{{ experience.description[:150] }}...</p>
+                                    {% if experience.tags %}
+                                    <div class="mt-2">
+                                        {% for tag in experience.tags %}
+                                        <span class="badge bg-secondary me-1">{{ tag.name }}</span>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-2 text-end">
+                                    <div class="btn-group-vertical" role="group">
+                                        <a href="{{ url_for('admin_edit_experience', id=experience.id) }}" 
+                                           class="btn btn-outline-secondary btn-sm">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                        <button type="button" class="btn btn-outline-danger btn-sm" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#deleteModal{{ experience.id }}">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delete Modal -->
+                <div class="modal fade" id="deleteModal{{ experience.id }}" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Delete Experience</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Are you sure you want to delete <strong>{{ experience.title }}</strong> at {{ experience.company }}?</p>
+                                <p class="text-danger">This action cannot be undone.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <form method="POST" action="{{ url_for('admin_delete_experience', id=experience.id) }}" class="d-inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <!-- Empty State -->
+    <div class="text-center py-5">
+        <i class="fas fa-briefcase fa-4x text-muted mb-4"></i>
+        <h4 class="text-muted mb-3">No Experiences Yet</h4>
+        <p class="text-muted mb-4">Build your professional timeline by adding your work experience.</p>
+        <a href="{{ url_for('admin_new_experience') }}" class="btn btn-info btn-lg">
+            <i class="fas fa-plus me-2"></i>Add Your First Experience
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- Back to Dashboard -->
+    <div class="mt-4">
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}

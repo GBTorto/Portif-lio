@@ -1,0 +1,273 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.title }} - Gabriel Morais Portfolio{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Project Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('portfolio') }}">Portfolio</a></li>
+                    <li class="breadcrumb-item active">{{ project.title }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Project Details -->
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Project Media -->
+            {% if project.image_url or project.video_url %}
+            <div class="mb-4">
+                {% if project.video_url %}
+                <video controls class="w-100 rounded shadow">
+                    <source src="{{ url_for('uploaded_file', filename=project.video_url) }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                {% elif project.image_url %}
+                <img src="{{ url_for('uploaded_file', filename=project.image_url) }}" 
+                     alt="{{ project.title }}" class="img-fluid rounded shadow">
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Project Info -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h1 class="card-title h2">{{ project.title }}</h1>
+                            {% if project.category %}
+                            <span class="badge bg-primary">{{ project.category.name }}</span>
+                            {% endif %}
+                            {% if project.is_featured %}
+                            <span class="badge bg-warning text-dark">
+                                <i class="fas fa-star me-1"></i>Featured
+                            </span>
+                            {% endif %}
+                        </div>
+                        <div class="text-muted">
+                            <small>{{ project.created_at.strftime('%B %d, %Y') }}</small>
+                        </div>
+                    </div>
+
+                    <div class="card-text">
+                        {{ project.description|safe }}
+                    </div>
+
+                    <!-- Project Tags -->
+                    {% if project.tags %}
+                    <div class="mt-3">
+                        <h6>Technologies Used:</h6>
+                        {% for tag in project.tags %}
+                        <span class="badge bg-secondary me-1">{{ tag.name }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Project Links -->
+                    <div class="mt-4">
+                        <div class="d-flex gap-3 flex-wrap">
+                            {% if project.demo_link %}
+                            <a href="{{ project.demo_link }}" target="_blank" class="btn btn-primary">
+                                <i class="fas fa-external-link-alt me-2"></i>Live Demo
+                            </a>
+                            {% endif %}
+                            {% if project.github_link %}
+                            <a href="{{ project.github_link }}" target="_blank" class="btn btn-outline-secondary">
+                                <i class="fab fa-github me-2"></i>Source Code
+                            </a>
+                            {% endif %}
+                            <a href="{{ url_for('share_project', id=project.id) }}" target="_blank" 
+                               class="btn btn-outline-primary">
+                                <i class="fab fa-linkedin me-2"></i>Share on LinkedIn
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comments Section -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-comments me-2"></i>Comments ({{ comments|length }})
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if current_user.is_authenticated %}
+                    <!-- Comment Form -->
+                    <form method="POST" action="{{ url_for('comment_project', id=project.id) }}" class="mb-4">
+                        {{ comment_form.hidden_tag() }}
+                        <div class="mb-3">
+                            {{ comment_form.content(class="form-control", rows="3", placeholder="Share your thoughts about this project...") }}
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-2"></i>Post Comment
+                        </button>
+                    </form>
+                    <hr>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <a href="{{ url_for('login') }}">Login</a> or 
+                        <a href="{{ url_for('register') }}">register</a> to leave a comment.
+                    </div>
+                    {% endif %}
+
+                    <!-- Comments List -->
+                    {% if comments %}
+                    <div class="comments-list">
+                        {% for comment in comments %}
+                        <div class="comment mb-4 pb-3 border-bottom">
+                            <div class="d-flex">
+                                <div class="me-3">
+                                    {% if comment.author.profile_image %}
+                                    <img src="{{ url_for('uploaded_file', filename=comment.author.profile_image) }}" 
+                                         alt="{{ comment.author.username }}" class="rounded-circle" 
+                                         style="width: 40px; height: 40px; object-fit: cover;">
+                                    {% else %}
+                                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" 
+                                         style="width: 40px; height: 40px;">
+                                        <i class="fas fa-user text-white"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <h6 class="mb-0">{{ comment.author.username }}</h6>
+                                        <small class="text-muted">{{ comment.created_at.strftime('%B %d, %Y at %I:%M %p') }}</small>
+                                    </div>
+                                    <p class="mb-0">{{ comment.content }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-comment fa-2x text-muted mb-3"></i>
+                        <p class="text-muted">No comments yet. Be the first to share your thoughts!</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Project Stats -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">Project Stats</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span>
+                            <i class="fas fa-heart text-danger me-2"></i>Likes
+                        </span>
+                        <span class="badge bg-secondary">{{ project.like_count }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span>
+                            <i class="fas fa-comment text-primary me-2"></i>Comments
+                        </span>
+                        <span class="badge bg-secondary">{{ project.comment_count }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>
+                            <i class="fas fa-calendar text-info me-2"></i>Created
+                        </span>
+                        <span class="text-muted">{{ project.created_at.strftime('%b %Y') }}</span>
+                    </div>
+                    
+                    {% if current_user.is_authenticated %}
+                    <hr>
+                    <button id="likeBtn" class="btn btn-outline-danger w-100" 
+                            data-project-id="{{ project.id }}" 
+                            data-liked="{{ user_liked|lower }}">
+                        <i class="fas fa-heart me-2"></i>
+                        <span id="likeBtnText">{{ 'Unlike' if user_liked else 'Like' }}</span>
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Related Projects -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">More Projects</h6>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted text-center">
+                        <a href="{{ url_for('portfolio') }}" class="text-decoration-none">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Portfolio
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const likeBtn = document.getElementById('likeBtn');
+    
+    if (likeBtn) {
+        likeBtn.addEventListener('click', function() {
+            const projectId = this.dataset.projectId;
+            const liked = this.dataset.liked === 'true';
+            
+            fetch(`/like_project/${projectId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('meta[name=csrf-token]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const btnText = document.getElementById('likeBtnText');
+                const heartIcon = this.querySelector('i');
+                
+                if (data.liked) {
+                    btnText.textContent = 'Unlike';
+                    this.classList.remove('btn-outline-danger');
+                    this.classList.add('btn-danger');
+                    heartIcon.classList.add('fas');
+                    heartIcon.classList.remove('far');
+                } else {
+                    btnText.textContent = 'Like';
+                    this.classList.remove('btn-danger');
+                    this.classList.add('btn-outline-danger');
+                    heartIcon.classList.add('far');
+                    heartIcon.classList.remove('fas');
+                }
+                
+                this.dataset.liked = data.liked;
+                
+                // Update like count in stats
+                const likeCountBadge = document.querySelector('.badge.bg-secondary');
+                if (likeCountBadge) {
+                    likeCountBadge.textContent = data.like_count;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error updating like status. Please try again.');
+            });
+        });
+    }
+});
+</script>
+
+<!-- Add CSRF token to meta tag -->
+<meta name="csrf-token" content="{{ csrf_token() }}">
+{% endblock %}

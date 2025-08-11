@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}{% if achievement %}Edit Achievement{% else %}New Achievement{% endif %} - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-6 fw-bold">
+                <i class="fas fa-{% if achievement %}edit{% else %}trophy{% endif %} me-3"></i>
+                {% if achievement %}Edit Achievement{% else %}New Achievement{% endif %}
+            </h1>
+            <p class="text-muted">
+                {% if achievement %}Update your achievement details{% else %}Add a new achievement to showcase{% endif %}
+            </p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Achievement Form -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Achievement Details</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                {{ form.title.label(class="form-label") }}
+                                {{ form.title(class="form-control") }}
+                                {% if form.title.errors %}
+                                    {% for error in form.title.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                {{ form.date_achieved.label(class="form-label") }}
+                                {{ form.date_achieved(class="form-control") }}
+                                {% if form.date_achieved.errors %}
+                                    {% for error in form.date_achieved.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.category_id.label(class="form-label") }}
+                                {{ form.category_id(class="form-select") }}
+                                {% if form.category_id.errors %}
+                                    {% for error in form.category_id.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.tags.label(class="form-label") }}
+                                {{ form.tags(class="form-control", placeholder="Certification, Award, Recognition") }}
+                                <div class="form-text">Separate tags with commas</div>
+                                {% if form.tags.errors %}
+                                    {% for error in form.tags.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.description.label(class="form-label") }}
+                            {{ form.description(class="form-control", rows="5") }}
+                            {% if form.description.errors %}
+                                {% for error in form.description.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.image.label(class="form-label") }}
+                                {{ form.image(class="form-control") }}
+                                <div class="form-text">Upload achievement image or logo</div>
+                                {% if form.image.errors %}
+                                    {% for error in form.image.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.certificate.label(class="form-label") }}
+                                {{ form.certificate(class="form-control") }}
+                                <div class="form-text">Upload certificate PDF or image</div>
+                                {% if form.certificate.errors %}
+                                    {% for error in form.certificate.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                {{ form.is_published(class="form-check-input") }}
+                                {{ form.is_published.label(class="form-check-label") }}
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-3">
+                            {{ form.submit(class="btn btn-success btn-lg") }}
+                            <a href="{{ url_for('admin_achievements') }}" class="btn btn-outline-secondary btn-lg">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Current Media Preview -->
+            {% if achievement %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">Current Files</h6>
+                </div>
+                <div class="card-body">
+                    {% if achievement.image_url %}
+                    <div class="mb-3">
+                        <label class="form-label">Current Image:</label>
+                        <img src="{{ url_for('uploaded_file', filename=achievement.image_url) }}" 
+                             alt="{{ achievement.title }}" class="img-fluid rounded">
+                    </div>
+                    {% endif %}
+                    {% if achievement.certificate_url %}
+                    <div class="mb-3">
+                        <label class="form-label">Current Certificate:</label>
+                        <a href="{{ url_for('uploaded_file', filename=achievement.certificate_url) }}" 
+                           target="_blank" class="btn btn-outline-primary btn-sm w-100">
+                            <i class="fas fa-file-pdf me-2"></i>View Certificate
+                        </a>
+                    </div>
+                    {% endif %}
+                    {% if not achievement.image_url and not achievement.certificate_url %}
+                    <p class="text-muted">No files uploaded yet</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Achievement Guidelines -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">Guidelines</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="fas fa-lightbulb text-warning me-2"></i>
+                            Use specific achievement titles
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-lightbulb text-warning me-2"></i>
+                            Include the issuing organization
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-lightbulb text-warning me-2"></i>
+                            Upload certificates when available
+                        </li>
+                        <li class="mb-0">
+                            <i class="fas fa-lightbulb text-warning me-2"></i>
+                            Add relevant skills as tags
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

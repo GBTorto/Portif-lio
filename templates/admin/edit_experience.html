@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block title %}{% if experience %}Edit Experience{% else %}New Experience{% endif %} - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-6 fw-bold">
+                <i class="fas fa-{% if experience %}edit{% else %}briefcase{% endif %} me-3"></i>
+                {% if experience %}Edit Experience{% else %}New Experience{% endif %}
+            </h1>
+            <p class="text-muted">
+                {% if experience %}Update your experience details{% else %}Add a new work experience or education{% endif %}
+            </p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Experience Form -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Experience Details</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                {{ form.title.label(class="form-label") }}
+                                {{ form.title(class="form-control") }}
+                                {% if form.title.errors %}
+                                    {% for error in form.title.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                {{ form.category_id.label(class="form-label") }}
+                                {{ form.category_id(class="form-select") }}
+                                {% if form.category_id.errors %}
+                                    {% for error in form.category_id.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                {{ form.company.label(class="form-label") }}
+                                {{ form.company(class="form-control") }}
+                                {% if form.company.errors %}
+                                    {% for error in form.company.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                {{ form.location.label(class="form-label") }}
+                                {{ form.location(class="form-control") }}
+                                {% if form.location.errors %}
+                                    {% for error in form.location.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.description.label(class="form-label") }}
+                            {{ form.description(class="form-control", rows="5") }}
+                            {% if form.description.errors %}
+                                {% for error in form.description.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                {{ form.start_date.label(class="form-label") }}
+                                {{ form.start_date(class="form-control") }}
+                                {% if form.start_date.errors %}
+                                    {% for error in form.start_date.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div id="endDateField">
+                                    {{ form.end_date.label(class="form-label") }}
+                                    {{ form.end_date(class="form-control") }}
+                                    {% if form.end_date.errors %}
+                                        {% for error in form.end_date.errors %}
+                                            <div class="text-danger small">{{ error }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="form-check mt-4">
+                                    {{ form.is_current(class="form-check-input", id="isCurrentCheck") }}
+                                    {{ form.is_current.label(class="form-check-label", for="isCurrentCheck") }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.tags.label(class="form-label") }}
+                            {{ form.tags(class="form-control", placeholder="Python, Leadership, Project Management") }}
+                            <div class="form-text">Separate tags with commas</div>
+                            {% if form.tags.errors %}
+                                {% for error in form.tags.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                {{ form.is_published(class="form-check-input") }}
+                                {{ form.is_published.label(class="form-check-label") }}
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-3">
+                            {{ form.submit(class="btn btn-info btn-lg") }}
+                            <a href="{{ url_for('admin_experiences') }}" class="btn btn-outline-secondary btn-lg">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Experience Guidelines -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">Guidelines</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="fas fa-lightbulb text-warning me-2"></i>
+                            Use specific job titles
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-lightbulb text-warning me-2"></i>
+                            Include key responsibilities and achievements
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-lightbulb text-warning me-2"></i>
+                            Check "Currently working here" for current positions
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-lightbulb text-warning me-2"></i>
+                            Add relevant skills and technologies as tags
+                        </li>
+                        <li class="mb-0">
+                            <i class="fas fa-lightbulb text-warning me-2"></i>
+                            Use categories to organize (Work, Education, etc.)
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const isCurrentCheck = document.getElementById('isCurrentCheck');
+    const endDateField = document.getElementById('endDateField');
+    
+    function toggleEndDate() {
+        if (isCurrentCheck.checked) {
+            endDateField.style.display = 'none';
+        } else {
+            endDateField.style.display = 'block';
+        }
+    }
+    
+    isCurrentCheck.addEventListener('change', toggleEndDate);
+    toggleEndDate(); // Initial state
+});
+</script>
+{% endblock %}

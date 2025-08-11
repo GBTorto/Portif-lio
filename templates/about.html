@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block title %}About - Gabriel Morais Portfolio{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- About Me Section -->
+    <section class="mb-5">
+        <div class="row align-items-center">
+            <div class="col-lg-4 text-center mb-4 mb-lg-0">
+                {% if about_me and about_me.profile_image %}
+                <img src="{{ url_for('uploaded_file', filename=about_me.profile_image) }}" 
+                     alt="Gabriel Morais" class="img-fluid rounded-circle shadow" 
+                     style="width: 250px; height: 250px; object-fit: cover;">
+                {% else %}
+                <div class="bg-primary rounded-circle mx-auto d-flex align-items-center justify-content-center shadow"
+                     style="width: 250px; height: 250px;">
+                    <i class="fas fa-user fa-5x text-white"></i>
+                </div>
+                {% endif %}
+            </div>
+            <div class="col-lg-8">
+                <h1 class="display-4 fw-bold mb-4">About Me</h1>
+                {% if about_me and about_me.content %}
+                <div class="lead">
+                    {{ about_me.content|safe }}
+                </div>
+                {% else %}
+                <p class="lead">
+                    Welcome to my portfolio! I'm Gabriel Morais, a passionate software developer 
+                    dedicated to creating innovative solutions and building amazing digital experiences.
+                </p>
+                <p>
+                    With expertise in various technologies and a commitment to continuous learning, 
+                    I strive to deliver high-quality projects that make a difference.
+                </p>
+                {% endif %}
+                
+                {% if about_me and about_me.resume_url %}
+                <div class="mt-4">
+                    <a href="{{ url_for('uploaded_file', filename=about_me.resume_url) }}" 
+                       class="btn btn-primary btn-lg" target="_blank">
+                        <i class="fas fa-download me-2"></i>Download Resume
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    {% if about_me and about_me.skills %}
+    <section class="mb-5">
+        <h2 class="display-6 fw-bold mb-4 text-center">Skills & Technologies</h2>
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="row g-3">
+                    {% for skill in about_me.skills.split('\n') if skill.strip() %}
+                    <div class="col-md-4 col-sm-6">
+                        <div class="card bg-secondary">
+                            <div class="card-body text-center py-3">
+                                <i class="fas fa-code text-primary mb-2"></i>
+                                <h6 class="card-title mb-0">{{ skill.strip() }}</h6>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Experience Timeline -->
+    {% if experiences %}
+    <section class="mb-5">
+        <h2 class="display-6 fw-bold mb-5 text-center">Professional Experience</h2>
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="timeline">
+                    {% for experience in experiences %}
+                    <div class="timeline-item mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="timeline-date text-primary fw-bold">
+                                            {{ experience.start_date.strftime('%b %Y') }} - 
+                                            {% if experience.is_current %}
+                                                <span class="badge bg-success">Current</span>
+                                            {% else %}
+                                                {{ experience.end_date.strftime('%b %Y') if experience.end_date else 'Present' }}
+                                            {% endif %}
+                                        </div>
+                                        {% if experience.location %}
+                                        <small class="text-muted">
+                                            <i class="fas fa-map-marker-alt me-1"></i>{{ experience.location }}
+                                        </small>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-9">
+                                        <h5 class="card-title">{{ experience.title }}</h5>
+                                        <h6 class="card-subtitle mb-2 text-primary">{{ experience.company }}</h6>
+                                        <p class="card-text">{{ experience.description }}</p>
+                                        {% if experience.tags %}
+                                        <div class="mt-2">
+                                            {% for tag in experience.tags %}
+                                            <span class="badge bg-secondary me-1">{{ tag.name }}</span>
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Achievements Section -->
+    {% if achievements %}
+    <section class="mb-5">
+        <h2 class="display-6 fw-bold mb-5 text-center">Achievements & Certifications</h2>
+        <div class="row g-4">
+            {% for achievement in achievements %}
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    {% if achievement.image_url %}
+                    <div class="row g-0">
+                        <div class="col-md-4">
+                            <img src="{{ url_for('uploaded_file', filename=achievement.image_url) }}" 
+                                 class="img-fluid rounded-start h-100" alt="{{ achievement.title }}"
+                                 style="object-fit: cover;">
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ achievement.title }}</h5>
+                                <p class="card-text">{{ achievement.description }}</p>
+                                <p class="card-text">
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar me-1"></i>{{ achievement.date_achieved.strftime('%B %Y') }}
+                                    </small>
+                                </p>
+                                {% if achievement.certificate_url %}
+                                <a href="{{ url_for('uploaded_file', filename=achievement.certificate_url) }}" 
+                                   class="btn btn-sm btn-outline-primary" target="_blank">
+                                    <i class="fas fa-certificate me-1"></i>View Certificate
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ achievement.title }}</h5>
+                        <p class="card-text">{{ achievement.description }}</p>
+                        <p class="card-text">
+                            <small class="text-muted">
+                                <i class="fas fa-calendar me-1"></i>{{ achievement.date_achieved.strftime('%B %Y') }}
+                            </small>
+                        </p>
+                        {% if achievement.certificate_url %}
+                        <a href="{{ url_for('uploaded_file', filename=achievement.certificate_url) }}" 
+                           class="btn btn-sm btn-outline-primary" target="_blank">
+                            <i class="fas fa-certificate me-1"></i>View Certificate
+                        </a>
+                        {% endif %}
+                        {% if achievement.tags %}
+                        <div class="mt-2">
+                            {% for tag in achievement.tags %}
+                            <span class="badge bg-secondary me-1">{{ tag.name }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Contact Section -->
+    <section class="text-center py-5 bg-primary text-white rounded">
+        <div class="container">
+            <h2 class="display-6 fw-bold mb-3">Get In Touch</h2>
+            <p class="lead mb-4">
+                Let's discuss your next project or collaboration opportunity.
+            </p>
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="d-flex justify-content-center gap-4 flex-wrap">
+                        <a href="mailto:moraisgabriel867@gmail.com" class="btn btn-light btn-lg">
+                            <i class="fas fa-envelope me-2"></i>Email Me
+                        </a>
+                        <a href="#" class="btn btn-outline-light btn-lg">
+                            <i class="fab fa-linkedin me-2"></i>LinkedIn
+                        </a>
+                        <a href="#" class="btn btn-outline-light btn-lg">
+                            <i class="fab fa-github me-2"></i>GitHub
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

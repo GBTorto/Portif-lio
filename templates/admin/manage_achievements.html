@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Achievements - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="display-6 fw-bold">
+                <i class="fas fa-trophy me-3"></i>Manage Achievements
+            </h1>
+            <p class="text-muted">Showcase your accomplishments and certifications</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <a href="{{ url_for('admin_new_achievement') }}" class="btn btn-success btn-lg">
+                <i class="fas fa-plus me-2"></i>New Achievement
+            </a>
+        </div>
+    </div>
+
+    <!-- Achievements Grid -->
+    {% if achievements %}
+    <div class="row g-4">
+        {% for achievement in achievements %}
+        <div class="col-lg-6">
+            <div class="card h-100">
+                {% if achievement.image_url %}
+                <img src="{{ url_for('uploaded_file', filename=achievement.image_url) }}" 
+                     class="card-img-top" alt="{{ achievement.title }}" 
+                     style="height: 200px; object-fit: cover;">
+                {% endif %}
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title">{{ achievement.title }}</h5>
+                        {% if achievement.is_published %}
+                        <span class="badge bg-success">Published</span>
+                        {% else %}
+                        <span class="badge bg-warning text-dark">Draft</span>
+                        {% endif %}
+                    </div>
+                    
+                    {% if achievement.category %}
+                    <span class="badge bg-primary mb-2">{{ achievement.category.name }}</span>
+                    {% endif %}
+                    
+                    <p class="card-text">{{ achievement.description[:100] }}...</p>
+                    
+                    <div class="mb-3">
+                        <small class="text-muted">
+                            <i class="fas fa-calendar me-1"></i>{{ achievement.date_achieved.strftime('%B %Y') }}
+                        </small>
+                    </div>
+                    
+                    {% if achievement.tags %}
+                    <div class="mb-3">
+                        {% for tag in achievement.tags %}
+                        <span class="badge bg-secondary me-1">{{ tag.name }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="card-footer bg-transparent">
+                    <div class="d-flex gap-2">
+                        <a href="{{ url_for('admin_edit_achievement', id=achievement.id) }}" 
+                           class="btn btn-outline-secondary btn-sm flex-grow-1">
+                            <i class="fas fa-edit me-1"></i>Edit
+                        </a>
+                        {% if achievement.certificate_url %}
+                        <a href="{{ url_for('uploaded_file', filename=achievement.certificate_url) }}" 
+                           target="_blank" class="btn btn-outline-info btn-sm" title="View Certificate">
+                            <i class="fas fa-certificate"></i>
+                        </a>
+                        {% endif %}
+                        <button type="button" class="btn btn-outline-danger btn-sm" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#deleteModal{{ achievement.id }}" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delete Modal -->
+            <div class="modal fade" id="deleteModal{{ achievement.id }}" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Delete Achievement</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Are you sure you want to delete <strong>{{ achievement.title }}</strong>?</p>
+                            <p class="text-danger">This action cannot be undone.</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <form method="POST" action="{{ url_for('admin_delete_achievement', id=achievement.id) }}" class="d-inline">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- Empty State -->
+    <div class="text-center py-5">
+        <i class="fas fa-trophy fa-4x text-muted mb-4"></i>
+        <h4 class="text-muted mb-3">No Achievements Yet</h4>
+        <p class="text-muted mb-4">Start showcasing your accomplishments by adding your first achievement.</p>
+        <a href="{{ url_for('admin_new_achievement') }}" class="btn btn-success btn-lg">
+            <i class="fas fa-plus me-2"></i>Add Your First Achievement
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- Back to Dashboard -->
+    <div class="mt-4">
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}

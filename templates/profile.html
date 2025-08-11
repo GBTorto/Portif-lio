@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - {{ user.username }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Profile Header -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body p-5">
+                    <div class="row align-items-center">
+                        <div class="col-md-3 text-center mb-4 mb-md-0">
+                            {% if user.profile_image %}
+                            <img src="{{ url_for('uploaded_file', filename=user.profile_image) }}" 
+                                 alt="{{ user.username }}" class="img-fluid rounded-circle shadow" 
+                                 style="width: 150px; height: 150px; object-fit: cover;">
+                            {% else %}
+                            <div class="bg-primary rounded-circle mx-auto d-flex align-items-center justify-content-center shadow"
+                                 style="width: 150px; height: 150px;">
+                                <i class="fas fa-user fa-4x text-white"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <h1 class="display-6 fw-bold mb-2">{{ user.username }}</h1>
+                            <p class="text-muted mb-2">
+                                <i class="fas fa-envelope me-2"></i>{{ user.email }}
+                            </p>
+                            <p class="text-muted mb-3">
+                                <i class="fas fa-calendar me-2"></i>Member since {{ user.created_at.strftime('%B %Y') }}
+                            </p>
+                            {% if user.about_me %}
+                            <p class="lead">{{ user.about_me }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3 text-md-end">
+                            <a href="{{ url_for('edit_profile') }}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-edit me-2"></i>Edit Profile
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Activity Stats -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-comment fa-2x text-primary mb-3"></i>
+                    <h4>{{ user.comments.count() }}</h4>
+                    <p class="text-muted mb-0">Comments Posted</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-heart fa-2x text-danger mb-3"></i>
+                    <h4>{{ user.likes.count() }}</h4>
+                    <p class="text-muted mb-0">Projects Liked</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-calendar fa-2x text-info mb-3"></i>
+                    <h4>{{ (moment().year - user.created_at.year) if user.created_at else 0 }}</h4>
+                    <p class="text-muted mb-0">Years Active</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Comments -->
+    {% set recent_comments = user.comments.order_by(user.comments.created_at.desc()).limit(5).all() %}
+    {% if recent_comments %}
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Comments</h5>
+                </div>
+                <div class="card-body">
+                    {% for comment in recent_comments %}
+                    <div class="comment-item mb-3 pb-3 {% if not loop.last %}border-bottom{% endif %}">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="mb-0">
+                                <a href="{{ url_for('project_detail', id=comment.project.id) }}" class="text-decoration-none">
+                                    {{ comment.project.title }}
+                                </a>
+                            </h6>
+                            <small class="text-muted">{{ comment.created_at.strftime('%b %d, %Y') }}</small>
+                        </div>
+                        <p class="mb-0">{{ comment.content }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Liked Projects -->
+    {% set liked_projects = [] %}
+    {% for like in user.likes %}
+        {% if like.project.is_published %}
+            {% set _ = liked_projects.append(like.project) %}
+        {% endif %}
+    {% endfor %}
+    
+    {% if liked_projects %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Liked Projects</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        {% for project in liked_projects[:6] %}
+                        <div class="col-md-4">
+                            <div class="card card-sm">
+                                {% if project.image_url %}
+                                <img src="{{ url_for('uploaded_file', filename=project.image_url) }}" 
+                                     class="card-img-top" alt="{{ project.title }}" 
+                                     style="height: 120px; object-fit: cover;">
+                                {% endif %}
+                                <div class="card-body p-3">
+                                    <h6 class="card-title">{{ project.title }}</h6>
+                                    <p class="card-text small text-muted">
+                                        {{ project.description[:80] }}...
+                                    </p>
+                                    <a href="{{ url_for('project_detail', id=project.id) }}" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        View Project
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if liked_projects|length > 6 %}
+                    <div class="text-center mt-3">
+                        <p class="text-muted">And {{ liked_projects|length - 6 }} more liked projects...</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Empty State for New Users -->
+    {% if not recent_comments and not liked_projects %}
+    <div class="text-center py-5">
+        <i class="fas fa-user-circle fa-4x text-muted mb-4"></i>
+        <h4 class="text-muted mb-3">Welcome to Your Profile!</h4>
+        <p class="text-muted mb-4">Start exploring projects to build up your activity.</p>
+        <a href="{{ url_for('portfolio') }}" class="btn btn-primary btn-lg">
+            <i class="fas fa-eye me-2"></i>Explore Projects
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}{% if project %}Edit Project{% else %}New Project{% endif %} - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-6 fw-bold">
+                <i class="fas fa-{% if project %}edit{% else %}plus{% endif %} me-3"></i>
+                {% if project %}Edit Project{% else %}New Project{% endif %}
+            </h1>
+            <p class="text-muted">
+                {% if project %}Update your project details{% else %}Add a new project to your portfolio{% endif %}
+            </p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Project Form -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Project Details</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                {{ form.title.label(class="form-label") }}
+                                {{ form.title(class="form-control") }}
+                                {% if form.title.errors %}
+                                    {% for error in form.title.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                {{ form.category_id.label(class="form-label") }}
+                                {{ form.category_id(class="form-select") }}
+                                {% if form.category_id.errors %}
+                                    {% for error in form.category_id.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.description.label(class="form-label") }}
+                            {{ form.description(class="form-control", rows="6") }}
+                            {% if form.description.errors %}
+                                {% for error in form.description.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.demo_link.label(class="form-label") }}
+                                {{ form.demo_link(class="form-control", placeholder="https://") }}
+                                {% if form.demo_link.errors %}
+                                    {% for error in form.demo_link.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.github_link.label(class="form-label") }}
+                                {{ form.github_link(class="form-control", placeholder="https://github.com/") }}
+                                {% if form.github_link.errors %}
+                                    {% for error in form.github_link.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.tags.label(class="form-label") }}
+                            {{ form.tags(class="form-control", placeholder="React, Python, JavaScript") }}
+                            <div class="form-text">Separate tags with commas</div>
+                            {% if form.tags.errors %}
+                                {% for error in form.tags.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.image.label(class="form-label") }}
+                                {{ form.image(class="form-control") }}
+                                <div class="form-text">Upload project screenshot or image</div>
+                                {% if form.image.errors %}
+                                    {% for error in form.image.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.video.label(class="form-label") }}
+                                {{ form.video(class="form-control") }}
+                                <div class="form-text">Upload project demo video (optional)</div>
+                                {% if form.video.errors %}
+                                    {% for error in form.video.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check">
+                                    {{ form.is_published(class="form-check-input") }}
+                                    {{ form.is_published.label(class="form-check-label") }}
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check">
+                                    {{ form.is_featured(class="form-check-input") }}
+                                    {{ form.is_featured.label(class="form-check-label") }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-3">
+                            {{ form.submit(class="btn btn-primary btn-lg") }}
+                            <a href="{{ url_for('admin_projects') }}" class="btn btn-outline-secondary btn-lg">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Current Media Preview -->
+            {% if project %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">Current Media</h6>
+                </div>
+                <div class="card-body">
+                    {% if project.image_url %}
+                    <div class="mb-3">
+                        <label class="form-label">Current Image:</label>
+                        <img src="{{ url_for('uploaded_file', filename=project.image_url) }}" 
+                             alt="{{ project.title }}" class="img-fluid rounded">
+                    </div>
+                    {% endif %}
+                    {% if project.video_url %}
+                    <div class="mb-3">
+                        <label class="form-label">Current Video:</label>
+                        <video controls class="w-100 rounded">
+                            <source src="{{ url_for('uploaded_file', filename=project.video_url) }}" type="video/mp4">
+                        </video>
+                    </div>
+                    {% endif %}
+                    {% if not project.image_url and not project.video_url %}
+                    <p class="text-muted">No media uploaded yet</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Quick Tips -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">Tips</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="fas fa-lightbulb text-warning me-2"></i>
+                            Use clear, descriptive titles
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-lightbulb text-warning me-2"></i>
+                            Include relevant technologies in tags
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-lightbulb text-warning me-2"></i>
+                            Featured projects appear on homepage
+                        </li>
+                        <li class="mb-0">
+                            <i class="fas fa-lightbulb text-warning me-2"></i>
+                            Save as draft to preview before publishing
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
