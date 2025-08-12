@@ -7,6 +7,7 @@ This is a personal portfolio website built with Flask that showcases Gabriel Mor
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Translation functionality: Removed per user request.
 
 ## System Architecture
 

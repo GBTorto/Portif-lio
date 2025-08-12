@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ user.username }} - {{ t('profile') }}{% endblock %}
+{% block title %}{{ user.username }} - Profile{% endblock %}
 
 {% block content %}
 <div class="container mt-5 pt-4 fade-in">
@@ -22,7 +22,7 @@
                 <h1 class="mb-0">{{ user.username }}</h1>
                 {% if current_user.id == user.id %}
                     <a href="{{ url_for('edit_profile') }}" class="btn btn-outline-primary hover-lift">
-                        <i class="fas fa-edit me-1 icon-spin"></i>{{ t('edit_profile') }}
+                        <i class="fas fa-edit me-1 icon-spin"></i>Edit Profile
                     </a>
                 {% endif %}
             </div>
@@ -44,31 +44,31 @@
             
             <!-- Social Networks -->
             <div class="mt-4">
-                <h5 class="mb-3">{{ t('social_networks') }}</h5>
+                <h5 class="mb-3">Social Networks</h5>
                 <div class="d-flex flex-wrap gap-2 mb-3">
                     {% if user.linkedin_url %}
                         <a href="{{ user.linkedin_url }}" target="_blank" class="btn btn-outline-info btn-sm hover-glow">
-                            <i class="fab fa-linkedin me-1"></i>{{ t('linkedin') }}
+                            <i class="fab fa-linkedin me-1"></i>LinkedIn
                         </a>
                     {% endif %}
                     {% if user.github_url %}
                         <a href="{{ user.github_url }}" target="_blank" class="btn btn-outline-dark btn-sm hover-glow">
-                            <i class="fab fa-github me-1"></i>{{ t('github') }}
+                            <i class="fab fa-github me-1"></i>GitHub
                         </a>
                     {% endif %}
                     {% if user.website_url %}
                         <a href="{{ user.website_url }}" target="_blank" class="btn btn-outline-primary btn-sm hover-glow">
-                            <i class="fas fa-globe me-1"></i>{{ t('website') }}
+                            <i class="fas fa-globe me-1"></i>Website
                         </a>
                     {% endif %}
                     {% if user.twitter_url %}
                         <a href="{{ user.twitter_url }}" target="_blank" class="btn btn-outline-info btn-sm hover-glow">
-                            <i class="fab fa-twitter me-1"></i>{{ t('twitter') }}
+                            <i class="fab fa-twitter me-1"></i>Twitter
                         </a>
                     {% endif %}
                     {% if user.instagram_url %}
                         <a href="{{ user.instagram_url }}" target="_blank" class="btn btn-outline-danger btn-sm hover-glow">
-                            <i class="fab fa-instagram me-1"></i>{{ t('instagram') }}
+                            <i class="fab fa-instagram me-1"></i>Instagram
                         </a>
                     {% endif %}
                 </div>
@@ -98,15 +98,15 @@
                 {% if current_user.id == user.id %}
                     <div class="card mt-3">
                         <div class="card-body">
-                            <h6 class="card-title">{{ t('add_social_network') }}</h6>
+                            <h6 class="card-title">Add Social Network</h6>
                             <form id="social-network-form" onsubmit="event.preventDefault(); socialNetworkManager.addNetwork();">
                                 {{ csrf_token() }}
                                 <div class="row g-2">
                                     <div class="col-md-4">
-                                        <input type="text" class="form-control" name="name" placeholder="{{ t('network_name') }}" required>
+                                        <input type="text" class="form-control" name="name" placeholder="Network Name" required>
                                     </div>
                                     <div class="col-md-5">
-                                        <input type="url" class="form-control" name="url" placeholder="{{ t('network_url') }}" required>
+                                        <input type="url" class="form-control" name="url" placeholder="Network URL" required>
                                     </div>
                                     <div class="col-md-2">
                                         <input type="text" class="form-control" name="icon" placeholder="fas fa-link">
@@ -132,7 +132,7 @@
                 <div class="card-body">
                     <i class="fas fa-comment fa-2x text-primary mb-3"></i>
                     <h4>{{ user.comments.count() }}</h4>
-                    <p class="text-muted mb-0">{{ t('comments_posted') }}</p>
+                    <p class="text-muted mb-0">Comments Posted</p>
                 </div>
             </div>
         </div>
@@ -141,7 +141,7 @@
                 <div class="card-body">
                     <i class="fas fa-heart fa-2x text-danger mb-3"></i>
                     <h4>{{ user.likes.count() }}</h4>
-                    <p class="text-muted mb-0">{{ t('projects_liked') }}</p>
+                    <p class="text-muted mb-0">Projects Liked</p>
                 </div>
             </div>
         </div>
@@ -151,7 +151,7 @@
                     <i class="fas fa-calendar fa-2x text-info mb-3"></i>
                     {% set years_active = ((2025 - user.created_at.year) if user.created_at else 0) %}
                     <h4>{{ years_active }}</h4>
-                    <p class="text-muted mb-0">{{ t('years_active') }}</p>
+                    <p class="text-muted mb-0">Years Active</p>
                 </div>
             </div>
         </div>
@@ -164,7 +164,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">{{ t('recent_comments') }}</h5>
+                    <h5 class="mb-0">Recent Comments</h5>
                 </div>
                 <div class="card-body">
                     {% for comment in recent_comments %}
@@ -196,7 +196,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">{{ t('liked_projects') }}</h5>
+                    <h5 class="mb-0">Liked Projects</h5>
                 </div>
                 <div class="card-body">
                     <div class="row g-4">
@@ -211,7 +211,7 @@
                                     <h6 class="card-title">{{ project.title }}</h6>
                                     <p class="card-text flex-grow-1">{{ project.description[:100] }}...</p>
                                     <a href="{{ url_for('project_detail', id=project.id) }}" class="btn btn-outline-primary btn-sm mt-auto">
-                                        {{ t('view_project') }}
+                                        View Project
                                     </a>
                                 </div>
                             </div>

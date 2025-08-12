@@ -159,10 +159,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Language Toggle Function
-function setLanguage(lang) {
-    window.location.href = '/set_language/' + lang;
-}
+
 
 // Social Network Management
 const socialNetworkManager = {
@@ -283,5 +280,4 @@ const socialNetworkManager = {
 
 // Make functions globally available
 window.socialNetworkManager = socialNetworkManager;
-window.setLanguage = setLanguage;
 window.portfolioUtils = portfolioUtils;

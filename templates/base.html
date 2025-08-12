@@ -22,11 +22,7 @@
     {% block head %}{% endblock %}
 </head>
 <body {% if current_user.is_authenticated %}data-user-authenticated="true"{% endif %}>
-    <!-- Language Toggle -->
-    <div class="language-toggle">
-        <button onclick="setLanguage('en')" class="{% if current_lang == 'en' %}active{% endif %}">EN</button>
-        <button onclick="setLanguage('pt')" class="{% if current_lang == 'pt' %}active{% endif %}">PT</button>
-    </div>
+
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div class="container">
@@ -41,13 +37,13 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('index') }}">{{ t('home') }}</a>
+                        <a class="nav-link" href="{{ url_for('index') }}">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('about') }}">{{ t('about') }}</a>
+                        <a class="nav-link" href="{{ url_for('about') }}">About</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('portfolio') }}">{{ t('portfolio') }}</a>
+                        <a class="nav-link" href="{{ url_for('portfolio') }}">Portfolio</a>
                     </li>
                 </ul>
                 
@@ -56,7 +52,7 @@
                         {% if current_user.is_admin %}
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ url_for('admin_dashboard') }}">
-                                    <i class="fas fa-cog me-1"></i>{{ t('admin') }}
+                                    <i class="fas fa-cog me-1"></i>Admin
                                 </a>
                             </li>
                         {% endif %}
@@ -66,15 +62,15 @@
                                 <i class="fas fa-user me-1"></i>{{ current_user.username }}
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{{ url_for('profile') }}">{{ t('profile') }}</a></li>
-                                <li><a class="dropdown-item" href="{{ url_for('edit_profile') }}">{{ t('edit_profile') }}</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('profile') }}">Profile</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('edit_profile') }}">Edit Profile</a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{{ url_for('logout') }}">{{ t('logout') }}</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a></li>
                             </ul>
                         </li>
                     {% else %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('login') }}">{{ t('login') }}</a>
+                            <a class="nav-link" href="{{ url_for('login') }}">Login</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('register') }}">Register</a>

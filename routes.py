@@ -12,10 +12,7 @@ from models import *
 from forms import *
 from utils import allowed_file, save_uploaded_file, send_notification_email
 
-@app.route('/set_language/<language>')
-def set_language(language=None):
-    session['language'] = language
-    return redirect(request.referrer or url_for('index'))
+
 
 @app.route('/')
 def index():
