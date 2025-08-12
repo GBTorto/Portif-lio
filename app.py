@@ -25,7 +25,7 @@ app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key-change-in-prod
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 # configure the database
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///portfolio.db")
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
     "pool_pre_ping": True,
@@ -35,9 +35,9 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
 app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', '587'))
 app.config['MAIL_USE_TLS'] = os.environ.get('MAIL_USE_TLS', 'true').lower() in ['true', 'on', '1']
-app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME', 'moraisgabriel867@gmail.com')
-app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD', '')
-app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER', 'moraisgabriel867@gmail.com')
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER')
 
 # File upload configuration
 app.config['UPLOAD_FOLDER'] = 'uploads'
@@ -70,18 +70,20 @@ with app.app_context():
     from models import User
     from werkzeug.security import generate_password_hash
     
-    owner = User.query.filter_by(email='moraisgabriel867@gmail.com').first()
-    if not owner:
-        owner = User(
-            username='Gabriel Morais',
-            email='moraisgabriel867@gmail.com',
-            password_hash=generate_password_hash('gabriel'),
+    # Check if any admin user exists
+    admin_user = User.query.filter_by(is_admin=True).first()
+    if not admin_user:
+        # Create default admin user - user should change credentials
+        admin_user = User(
+            username='Admin',
+            email='admin@portfolio.com',
+            password_hash=generate_password_hash('changeme123'),
             is_admin=True,
-            about_me='Portfolio owner and administrator'
+            about_me='Portfolio administrator'
         )
-        db.session.add(owner)
+        db.session.add(admin_user)
         db.session.commit()
-        print("Owner account created successfully")
+        print("Default admin account created successfully. Email: admin@portfolio.com, Password: changeme123")
 
 # Import routes
 from routes import *
