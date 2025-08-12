@@ -77,27 +77,41 @@ body {
     font-weight: 500;
     position: relative;
     transition: all var(--transition-fast) ease;
+    padding: 0.5rem 1rem !important;
 }
 
 .nav-link:hover {
     color: var(--primary-light) !important;
-    transform: translateY(-1px);
 }
 
-.nav-link::after {
+/* Underline effect only for main navigation links (not dropdowns) */
+.navbar-nav:not(.dropdown-menu) .nav-link:not(.dropdown-toggle)::after {
     content: '';
     position: absolute;
     width: 0;
     height: 2px;
-    bottom: -3px;
+    bottom: 0;
     left: 50%;
     background: var(--primary-color);
-    transition: all var(--transition-normal) ease;
+    transition: width var(--transition-normal) ease;
     transform: translateX(-50%);
 }
 
-.nav-link:hover::after {
-    width: 100%;
+.navbar-nav:not(.dropdown-menu) .nav-link:not(.dropdown-toggle):hover::after {
+    width: 80%;
+}
+
+/* Special handling for dropdown toggle */
+.dropdown-toggle {
+    position: relative;
+}
+
+.dropdown-toggle::after {
+    display: none !important;
+}
+
+.nav-link.dropdown-toggle:hover {
+    color: var(--primary-light) !important;
 }
 
 /* Card Enhancements */
@@ -302,9 +316,38 @@ body {
     100% { transform: rotate(360deg); }
 }
 
+/* Dropdown Menu Styling */
+.dropdown-menu {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-xl);
+    padding: 0.5rem 0;
+}
+
+.dropdown-item {
+    color: var(--text-primary);
+    padding: 0.5rem 1rem;
+    transition: all var(--transition-fast) ease;
+}
+
+.dropdown-item:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.dropdown-divider {
+    border-color: var(--border-color);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .card:hover {
         transform: translateY(-4px);
+    }
+    
+    /* Remove underline effects on mobile for better UX */
+    .navbar-nav:not(.dropdown-menu) .nav-link:not(.dropdown-toggle)::after {
+        display: none;
     }
 }
