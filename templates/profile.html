@@ -69,7 +69,7 @@
             <div class="card text-center">
                 <div class="card-body">
                     <i class="fas fa-calendar fa-2x text-info mb-3"></i>
-                    <h4>{{ (moment().year - user.created_at.year) if user.created_at else 0 }}</h4>
+                    <h4>{{ ((2025 - user.created_at.year) if user.created_at else 0) }}</h4>
                     <p class="text-muted mb-0">Years Active</p>
                 </div>
             </div>
