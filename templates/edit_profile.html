@@ -47,6 +47,78 @@
                             {% endif %}
                         </div>
 
+                        <!-- Social Network URLs -->
+                        <h5 class="mt-4 mb-3">{{ t('social_networks') }}</h5>
+                        
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form.linkedin_url.label(class="form-label") }}
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fab fa-linkedin"></i></span>
+                                        {{ form.linkedin_url(class="form-control", placeholder="https://linkedin.com/in/username") }}
+                                    </div>
+                                    {% for error in form.linkedin_url.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form.github_url.label(class="form-label") }}
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fab fa-github"></i></span>
+                                        {{ form.github_url(class="form-control", placeholder="https://github.com/username") }}
+                                    </div>
+                                    {% for error in form.github_url.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form.website_url.label(class="form-label") }}
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-globe"></i></span>
+                                        {{ form.website_url(class="form-control", placeholder="https://yourwebsite.com") }}
+                                    </div>
+                                    {% for error in form.website_url.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form.twitter_url.label(class="form-label") }}
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fab fa-twitter"></i></span>
+                                        {{ form.twitter_url(class="form-control", placeholder="https://twitter.com/username") }}
+                                    </div>
+                                    {% for error in form.twitter_url.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form.instagram_url.label(class="form-label") }}
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fab fa-instagram"></i></span>
+                                        {{ form.instagram_url(class="form-control", placeholder="https://instagram.com/username") }}
+                                    </div>
+                                    {% for error in form.instagram_url.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="mb-4">
                             {{ form.profile_image.label(class="form-label") }}
                             {{ form.profile_image(class="form-control") }}

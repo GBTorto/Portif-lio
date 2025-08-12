@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.username }} - {{ t('profile') }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-4 fade-in">
+    <!-- User Profile Header -->
+    <div class="row mb-5">
+        <div class="col-md-4 text-center">
+            {% if user.profile_image %}
+                <img src="{{ url_for('static', filename='uploads/profiles/' + user.profile_image) }}" 
+                     alt="{{ user.username }}" class="img-fluid profile-image mb-3" style="max-width: 200px;">
+            {% else %}
+                <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3 profile-image" 
+                     style="width: 200px; height: 200px;">
+                    <i class="fas fa-user text-white" style="font-size: 4rem;"></i>
+                </div>
+            {% endif %}
+        </div>
+        <div class="col-md-8">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <h1 class="mb-0">{{ user.username }}</h1>
+                {% if current_user.id == user.id %}
+                    <a href="{{ url_for('edit_profile') }}" class="btn btn-outline-primary hover-lift">
+                        <i class="fas fa-edit me-1 icon-spin"></i>{{ t('edit_profile') }}
+                    </a>
+                {% endif %}
+            </div>
+            
+            <div class="mb-3">
+                <span class="badge bg-secondary me-2">
+                    <i class="fas fa-envelope me-1"></i>{{ user.email }}
+                </span>
+                <span class="badge bg-info">
+                    <i class="fas fa-calendar me-1"></i>Joined {{ user.created_at.strftime('%B %Y') }}
+                </span>
+            </div>
+            
+            {% if user.about_me %}
+                <p class="lead text-muted">{{ user.about_me }}</p>
+            {% else %}
+                <p class="text-muted fst-italic">No description available.</p>
+            {% endif %}
+            
+            <!-- Social Networks -->
+            <div class="mt-4">
+                <h5 class="mb-3">{{ t('social_networks') }}</h5>
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    {% if user.linkedin_url %}
+                        <a href="{{ user.linkedin_url }}" target="_blank" class="btn btn-outline-info btn-sm hover-glow">
+                            <i class="fab fa-linkedin me-1"></i>{{ t('linkedin') }}
+                        </a>
+                    {% endif %}
+                    {% if user.github_url %}
+                        <a href="{{ user.github_url }}" target="_blank" class="btn btn-outline-dark btn-sm hover-glow">
+                            <i class="fab fa-github me-1"></i>{{ t('github') }}
+                        </a>
+                    {% endif %}
+                    {% if user.website_url %}
+                        <a href="{{ user.website_url }}" target="_blank" class="btn btn-outline-primary btn-sm hover-glow">
+                            <i class="fas fa-globe me-1"></i>{{ t('website') }}
+                        </a>
+                    {% endif %}
+                    {% if user.twitter_url %}
+                        <a href="{{ user.twitter_url }}" target="_blank" class="btn btn-outline-info btn-sm hover-glow">
+                            <i class="fab fa-twitter me-1"></i>{{ t('twitter') }}
+                        </a>
+                    {% endif %}
+                    {% if user.instagram_url %}
+                        <a href="{{ user.instagram_url }}" target="_blank" class="btn btn-outline-danger btn-sm hover-glow">
+                            <i class="fab fa-instagram me-1"></i>{{ t('instagram') }}
+                        </a>
+                    {% endif %}
+                </div>
+                
+                <!-- Custom Social Networks -->
+                {% for network in user.social_networks %}
+                    <div class="social-network-card">
+                        <div class="d-flex align-items-center">
+                            <div class="social-network-icon me-3">
+                                <i class="{{ network.icon or 'fas fa-link' }}"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">{{ network.name }}</h6>
+                                <a href="{{ network.url }}" target="_blank" class="text-muted small">{{ network.url }}</a>
+                            </div>
+                            {% if current_user.id == user.id %}
+                                <button class="btn btn-outline-danger btn-sm" 
+                                        onclick="socialNetworkManager.removeNetwork({{ network.id }})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+                
+                <!-- Add Social Network Form (Only for own profile) -->
+                {% if current_user.id == user.id %}
+                    <div class="card mt-3">
+                        <div class="card-body">
+                            <h6 class="card-title">{{ t('add_social_network') }}</h6>
+                            <form id="social-network-form" onsubmit="event.preventDefault(); socialNetworkManager.addNetwork();">
+                                {{ csrf_token() }}
+                                <div class="row g-2">
+                                    <div class="col-md-4">
+                                        <input type="text" class="form-control" name="name" placeholder="{{ t('network_name') }}" required>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <input type="url" class="form-control" name="url" placeholder="{{ t('network_url') }}" required>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <input type="text" class="form-control" name="icon" placeholder="fas fa-link">
+                                    </div>
+                                    <div class="col-md-1">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- User Activity Stats -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card text-center stats-card">
+                <div class="card-body">
+                    <i class="fas fa-comment fa-2x text-primary mb-3"></i>
+                    <h4>{{ user.comments.count() }}</h4>
+                    <p class="text-muted mb-0">{{ t('comments_posted') }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center stats-card">
+                <div class="card-body">
+                    <i class="fas fa-heart fa-2x text-danger mb-3"></i>
+                    <h4>{{ user.likes.count() }}</h4>
+                    <p class="text-muted mb-0">{{ t('projects_liked') }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center stats-card">
+                <div class="card-body">
+                    <i class="fas fa-calendar fa-2x text-info mb-3"></i>
+                    {% set years_active = ((2025 - user.created_at.year) if user.created_at else 0) %}
+                    <h4>{{ years_active }}</h4>
+                    <p class="text-muted mb-0">{{ t('years_active') }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Comments -->
+    {% set recent_comments = user.comments.order_by(user.comments.created_at.desc()).limit(5).all() %}
+    {% if recent_comments %}
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ t('recent_comments') }}</h5>
+                </div>
+                <div class="card-body">
+                    {% for comment in recent_comments %}
+                    <div class="comment-item mb-3 pb-3 {% if not loop.last %}border-bottom{% endif %}">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="mb-0">
+                                <a href="{{ url_for('project_detail', id=comment.project.id) }}" class="text-decoration-none">
+                                    {{ comment.project.title }}
+                                </a>
+                            </h6>
+                            <small class="text-muted">{{ comment.created_at.strftime('%b %d, %Y') }}</small>
+                        </div>
+                        <p class="mb-0">{{ comment.content }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Liked Projects -->
+    {% set liked_projects = [] %}
+    {% for like in user.likes %}
+        {% if liked_projects.append(like.project) %}{% endif %}
+    {% endfor %}
+    {% if liked_projects %}
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ t('liked_projects') }}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        {% for project in liked_projects[:3] %}
+                        <div class="col-md-4">
+                            <div class="card h-100 hover-lift">
+                                {% if project.image_url %}
+                                    <img src="{{ url_for('static', filename='uploads/' + project.image_url) }}" 
+                                         class="card-img-top" alt="{{ project.title }}" style="height: 200px; object-fit: cover;">
+                                {% endif %}
+                                <div class="card-body d-flex flex-column">
+                                    <h6 class="card-title">{{ project.title }}</h6>
+                                    <p class="card-text flex-grow-1">{{ project.description[:100] }}...</p>
+                                    <a href="{{ url_for('project_detail', id=project.id) }}" class="btn btn-outline-primary btn-sm mt-auto">
+                                        {{ t('view_project') }}
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

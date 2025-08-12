@@ -1,12 +1,13 @@
 import os
 import logging
-from flask import Flask
+from flask import Flask, session, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_wtf.csrf import CSRFProtect
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
+from translations import get_text, get_available_languages
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -84,6 +85,16 @@ with app.app_context():
         db.session.add(admin_user)
         db.session.commit()
         print("Default admin account created successfully. Email: admin@portfolio.com, Password: changeme123")
+
+# Add translation function to Jinja2 context
+@app.context_processor
+def inject_translations():
+    lang = session.get('language', 'en')
+    return {
+        't': lambda key: get_text(key, lang),
+        'current_lang': lang,
+        'available_languages': get_available_languages()
+    }
 
 # Import routes
 from routes import *

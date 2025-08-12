@@ -13,13 +13,24 @@ class User(UserMixin, db.Model):
     profile_image = db.Column(db.String(255))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
+    # New social fields
+    linkedin_url = db.Column(db.String(255))
+    github_url = db.Column(db.String(255))
+    website_url = db.Column(db.String(255))
+    twitter_url = db.Column(db.String(255))
+    instagram_url = db.Column(db.String(255))
+    
     # Password reset token
     reset_token = db.Column(db.String(100))
     reset_token_expires = db.Column(db.DateTime)
     
+    # User preferences
+    show_confirmation_popup = db.Column(db.Boolean, default=True)
+    
     # Relationships
     comments = db.relationship('Comment', backref='author', lazy='dynamic')
     likes = db.relationship('Like', backref='user', lazy='dynamic')
+    social_networks = db.relationship('SocialNetwork', backref='user', lazy='dynamic', cascade='all, delete-orphan')
     
     def __init__(self, username, email, password_hash, is_admin=False, about_me=None, profile_image=None):
         self.username = username
@@ -209,3 +220,19 @@ class AboutMe(db.Model):
         self.profile_image = profile_image
         self.resume_url = resume_url
         self.skills = skills
+
+class SocialNetwork(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False)
+    url = db.Column(db.String(255), nullable=False)
+    icon = db.Column(db.String(50))  # FontAwesome icon class
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Foreign Keys
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    
+    def __init__(self, name, url, user_id, icon=None):
+        self.name = name
+        self.url = url
+        self.user_id = user_id
+        self.icon = icon

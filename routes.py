@@ -12,6 +12,11 @@ from models import *
 from forms import *
 from utils import allowed_file, save_uploaded_file, send_notification_email
 
+@app.route('/set_language/<language>')
+def set_language(language=None):
+    session['language'] = language
+    return redirect(request.referrer or url_for('index'))
+
 @app.route('/')
 def index():
     # Get featured projects
@@ -321,7 +326,12 @@ def reset_password(token):
 @app.route('/profile')
 @login_required
 def profile():
-    return render_template('profile.html', user=current_user)
+    return render_template('profile_enhanced.html', user=current_user)
+
+@app.route('/profile/<int:user_id>')
+def view_profile(user_id):
+    user = User.query.get_or_404(user_id)
+    return render_template('profile_enhanced.html', user=user)
 
 @app.route('/edit_profile', methods=['GET', 'POST'])
 @login_required
@@ -331,6 +341,11 @@ def edit_profile():
     if form.validate_on_submit():
         current_user.username = form.username.data
         current_user.about_me = form.about_me.data
+        current_user.linkedin_url = form.linkedin_url.data
+        current_user.github_url = form.github_url.data
+        current_user.website_url = form.website_url.data
+        current_user.twitter_url = form.twitter_url.data
+        current_user.instagram_url = form.instagram_url.data
         
         # Handle profile image upload
         if form.profile_image.data:
@@ -345,8 +360,41 @@ def edit_profile():
     # Pre-populate form
     form.username.data = current_user.username
     form.about_me.data = current_user.about_me
+    form.linkedin_url.data = current_user.linkedin_url
+    form.github_url.data = current_user.github_url
+    form.website_url.data = current_user.website_url
+    form.twitter_url.data = current_user.twitter_url
+    form.instagram_url.data = current_user.instagram_url
     
     return render_template('edit_profile.html', form=form)
+
+@app.route('/add_social_network', methods=['POST'])
+@login_required
+def add_social_network():
+    form = SocialNetworkForm()
+    if form.validate_on_submit():
+        network = SocialNetwork(
+            name=form.name.data,
+            url=form.url.data,
+            icon=form.icon.data or 'fas fa-link',
+            user_id=current_user.id
+        )
+        db.session.add(network)
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Social network added successfully!'})
+    
+    return jsonify({'success': False, 'message': 'Please fill in all required fields.'})
+
+@app.route('/remove_social_network/<int:network_id>', methods=['DELETE'])
+@login_required
+def remove_social_network(network_id):
+    network = SocialNetwork.query.filter_by(id=network_id, user_id=current_user.id).first()
+    if network:
+        db.session.delete(network)
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Social network removed successfully!'})
+    
+    return jsonify({'success': False, 'message': 'Social network not found.'})
 
 # Admin routes
 @app.route('/admin')

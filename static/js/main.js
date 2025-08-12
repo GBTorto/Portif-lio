@@ -98,9 +98,12 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                portfolioUtils.smoothScrollTo(target, 100);
+            const href = this.getAttribute('href');
+            if (href && href !== '#') {
+                const target = document.querySelector(href);
+                if (target) {
+                    portfolioUtils.smoothScrollTo(target, 100);
+                }
             }
         });
     });
@@ -156,5 +159,129 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Make portfolioUtils globally available
+// Language Toggle Function
+function setLanguage(lang) {
+    window.location.href = '/set_language/' + lang;
+}
+
+// Social Network Management
+const socialNetworkManager = {
+    confirmationDialog: null,
+    
+    addNetwork() {
+        const form = document.getElementById('social-network-form');
+        const formData = new FormData(form);
+        
+        fetch('/add_social_network', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('meta[name=csrf-token]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                portfolioUtils.showToast(data.message, 'success');
+                this.refreshSocialNetworks();
+                form.reset();
+            } else {
+                portfolioUtils.showToast(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            portfolioUtils.showToast('An error occurred', 'error');
+            console.error('Error:', error);
+        });
+    },
+    
+    removeNetwork(networkId, showConfirmation = true) {
+        if (showConfirmation && !this.checkSkipConfirmation()) {
+            this.showConfirmationDialog(networkId);
+            return;
+        }
+        
+        fetch(`/remove_social_network/${networkId}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': document.querySelector('meta[name=csrf-token]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                portfolioUtils.showToast(data.message, 'success');
+                this.refreshSocialNetworks();
+            } else {
+                portfolioUtils.showToast(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            portfolioUtils.showToast('An error occurred', 'error');
+            console.error('Error:', error);
+        });
+    },
+    
+    showConfirmationDialog(networkId) {
+        // Create overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'confirmation-overlay';
+        
+        // Create dialog
+        const dialog = document.createElement('div');
+        dialog.className = 'confirmation-dialog';
+        dialog.innerHTML = `
+            <h5 class="mb-3">Confirm Deletion</h5>
+            <p class="mb-4">Are you sure you want to remove this social network?</p>
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="dontAskAgain">
+                <label class="form-check-label" for="dontAskAgain">
+                    Don't ask again
+                </label>
+            </div>
+            <div class="d-flex gap-2 justify-content-end">
+                <button class="btn btn-secondary" onclick="socialNetworkManager.closeConfirmationDialog()">Cancel</button>
+                <button class="btn btn-outline-danger" onclick="socialNetworkManager.confirmRemove(${networkId})">Confirm</button>
+            </div>
+        `;
+        
+        this.confirmationDialog = { overlay, dialog };
+        document.body.appendChild(overlay);
+        document.body.appendChild(dialog);
+        
+        // Close on overlay click
+        overlay.addEventListener('click', () => this.closeConfirmationDialog());
+    },
+    
+    closeConfirmationDialog() {
+        if (this.confirmationDialog) {
+            document.body.removeChild(this.confirmationDialog.overlay);
+            document.body.removeChild(this.confirmationDialog.dialog);
+            this.confirmationDialog = null;
+        }
+    },
+    
+    confirmRemove(networkId) {
+        const dontAskAgain = document.getElementById('dontAskAgain').checked;
+        if (dontAskAgain) {
+            localStorage.setItem('skipSocialNetworkConfirmation', 'true');
+        }
+        
+        this.closeConfirmationDialog();
+        this.removeNetwork(networkId, false);
+    },
+    
+    checkSkipConfirmation() {
+        return localStorage.getItem('skipSocialNetworkConfirmation') === 'true';
+    },
+    
+    refreshSocialNetworks() {
+        // Reload the social networks section
+        window.location.reload();
+    }
+};
+
+// Make functions globally available
+window.socialNetworkManager = socialNetworkManager;
+window.setLanguage = setLanguage;
 window.portfolioUtils = portfolioUtils;

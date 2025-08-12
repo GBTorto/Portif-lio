@@ -39,6 +39,11 @@ class ChangePasswordForm(FlaskForm):
 class ProfileForm(FlaskForm):
     username = StringField('Full Name', validators=[DataRequired(), Length(min=2, max=64)])
     about_me = TextAreaField('About Me', validators=[Optional(), Length(max=500)])
+    linkedin_url = StringField('LinkedIn URL', validators=[Optional(), URL()])
+    github_url = StringField('GitHub URL', validators=[Optional(), URL()])
+    website_url = StringField('Website URL', validators=[Optional(), URL()])
+    twitter_url = StringField('Twitter URL', validators=[Optional(), URL()])
+    instagram_url = StringField('Instagram URL', validators=[Optional(), URL()])
     profile_image = FileField('Profile Image', validators=[
         Optional(), FileAllowed(['jpg', 'png', 'jpeg', 'gif'], 'Images only!')
     ])
@@ -131,3 +136,9 @@ class AboutMeForm(FlaskForm):
 class CommentForm(FlaskForm):
     content = TextAreaField('Comment', validators=[DataRequired(), Length(min=1, max=500)])
     submit = SubmitField('Post Comment')
+
+class SocialNetworkForm(FlaskForm):
+    name = StringField('Network Name', validators=[DataRequired(), Length(max=50)])
+    url = StringField('Profile URL', validators=[DataRequired(), URL()])
+    icon = StringField('Icon (FontAwesome class)', validators=[Optional(), Length(max=50)])
+    submit = SubmitField('Add Social Network')
