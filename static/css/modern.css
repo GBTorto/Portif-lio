@@ -81,7 +81,7 @@ body {
 
 .nav-link:hover {
     color: var(--primary-light) !important;
-    transform: translateY(-2px);
+    transform: translateY(-1px);
 }
 
 .nav-link::after {
@@ -89,7 +89,7 @@ body {
     position: absolute;
     width: 0;
     height: 2px;
-    bottom: -5px;
+    bottom: -3px;
     left: 50%;
     background: var(--primary-color);
     transition: all var(--transition-normal) ease;

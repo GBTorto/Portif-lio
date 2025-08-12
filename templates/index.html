@@ -144,7 +144,7 @@
                 <p class="text-white-50">Latest projects and developments</p>
             </div>
             <div class="col-md-4 text-md-end">
-                <div class="btn-group" role="group">
+                <div class="d-flex gap-2 justify-content-md-end">
                     <a href="{{ url_for('index', sort='recent') }}" 
                        class="btn btn-outline-light {% if sort_by == 'recent' %}active{% endif %}">
                         <i class="fas fa-clock me-1"></i>Recent
