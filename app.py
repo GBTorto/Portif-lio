@@ -7,6 +7,8 @@ from flask_mail import Mail
 from flask_wtf.csrf import CSRFProtect
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
+from flask_migrate import Migrate
+
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -19,17 +21,29 @@ login_manager = LoginManager()
 mail = Mail()
 csrf = CSRFProtect()
 
+# Pasta instance ser reconhecida nesse arquivo
+basedir = os.path.abspath(os.path.dirname(__file__))
+instance_path = os.path.join(basedir, "instance")
+os.makedirs(instance_path, exist_ok=True)
+
 # create the app
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key-change-in-production")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 # configure the database
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+# app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+
+app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{os.path.join(instance_path, 'portfolio.db')}"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
     "pool_pre_ping": True,
 }
+
+migrate = Migrate()
+migrate.init_app(app, db)
 
 # Flask-Mail configuration
 app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
@@ -45,6 +59,10 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 
 # initialize extensions
 db.init_app(app)
+
+with app.app_context():
+    db.create_all()
+
 login_manager.init_app(app)
 mail.init_app(app)
 csrf.init_app(app)

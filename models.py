@@ -14,18 +14,18 @@ class User(UserMixin, db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # New social fields
-    linkedin_url = db.Column(db.String(255))
-    github_url = db.Column(db.String(255))
-    website_url = db.Column(db.String(255))
-    twitter_url = db.Column(db.String(255))
-    instagram_url = db.Column(db.String(255))
+    # linkedin_url = db.Column(db.String(255))
+    # github_url = db.Column(db.String(255))
+    # website_url = db.Column(db.String(255))
+    # twitter_url = db.Column(db.String(255))
+    # instagram_url = db.Column(db.String(255))
     
     # Password reset token
     reset_token = db.Column(db.String(100))
     reset_token_expires = db.Column(db.DateTime)
     
     # User preferences
-    show_confirmation_popup = db.Column(db.Boolean, default=True)
+    # show_confirmation_popup = db.Column(db.Boolean, default=True)
     
     # Relationships
     comments = db.relationship('Comment', backref='author', lazy='dynamic')
